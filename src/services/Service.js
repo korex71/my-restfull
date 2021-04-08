@@ -1,7 +1,7 @@
 import speakeasy from "speakeasy";
 import qrcode from "qrcode";
 import sendMail from '../services/sendMail'
-
+import utils from '../helpers/Users'
 class Service {
   constructor(model) {
     this.model = model;
@@ -9,10 +9,11 @@ class Service {
     this.insert = this.insert.bind(this);
     this.update = this.update.bind(this);
     this.delete = this.delete.bind(this);
-    this.sendMail = sendMail.bind(this)
+    this.sendMail = sendMail.bind(this);
+    this.getSecretAndBase64 = this.getSecretAndBase64.bind(this);
   }
 
-  async #getSecretAndBase64(user){
+  async getSecretAndBase64(user){
     const secret = speakeasy.generateSecret({user}); // Generate2FA Secret
     const base64 = await qrcode.toDataURL(secret.otpauth_url) // Generate QR Base64
 
@@ -48,36 +49,74 @@ class Service {
     }
   }
 
+  async getUser(param){
+    try {
+      const {user, exists} = await utils.userExists(param)
+      
+      if(exists)
+        return {
+          error: false,
+          statusCode: 202,
+          user
+        }
+      
+      return {
+        error: true,
+        statusCode: 404,
+        user,
+        message: 'User not exists.'
+      }
+    } catch (err) {
+      console.error(err)
+
+      return {
+        error: true,
+        statusCode: 500,
+        message: error.message
+      }
+    }
+  }
+
   async insert(data) {
 
     try {
 
-      if(await userModel.findOne({ email }))
-        throw new Error("Email already exists.");
-      if(await userModel.findOne({ user }))
-        throw new Error("User already exists");
-
-      const {ascii, base64} = await this.#getSecretAndBase64(user);
-
-      data.twoFkey = ascii
+      const userExists = await utils.userExists(data.email)
+       
+      if(userExists)
+        return {
+          error: true,
+          message: "User already exists.",
+          statusCode: 401,
+          user: {
+            created: false,
+            data: null,
+          }
+        }
     
-      const user = await this.model.create(data)
-
-      this.sendMail()
+      const user = await this.model.create(data);
 
       if(user)
         return {
           error: false,
-          message: "Verifique seu email.",
-          user,
-          base64
+          statusCode: 201,
+          user: {
+            created: true,
+            data: user,
+          }
         }
     } catch (error) {
-      console.error(error)
+
+      console.error(error.message || error)
+
       return {
         error: true,
-        statusCode: 500,
         message: error.message || "Unexpected error.",
+        statusCode: 500,
+        user: {
+          created: false,
+          data: null,
+        },
         errors: error.errors
       }
     }

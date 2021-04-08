@@ -21,7 +21,6 @@ auth.post("/signup", signUpValidator, async (req, res) => {
   } catch (err) {
     console.error(err)
     return res.status(401).json({ message: err.message || "Unexpected error." });
-
   }
 });
 
@@ -37,6 +36,5 @@ auth.route("/user")
   .get((req, res) => User.getUsers(res))
   .delete((req, res) => User.deleteUsers(res))
 
-auth.delete("/user/:user", (req, res) => User.deleteUser(req, res))
 
 export default auth

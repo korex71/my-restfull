@@ -1,3 +1,4 @@
+import utils from '../helpers/Users'
 class Controller {
 
   constructor(service) {
@@ -6,6 +7,7 @@ class Controller {
     this.insert = this.insert.bind(this);
     this.update = this.update.bind(this);
     this.delete = this.delete.bind(this);
+    this.getUser = this.getUser.bind(this);
   }
 
   async getAll(req, res) {
@@ -16,15 +18,15 @@ class Controller {
 
     const {email, user, password} = req.body;
 
-    if(!email, !user, !password) res.status(400).send({error: 'Invalid format'})
-    
-    const response = await this.service.insert({email, user, password});
+    const {ascii, base64} = await utils.getSecretAndBase64(user)
+
+    const response = await this.service.insert({email, user, password, twoFactors: ascii});
 
     if (response.error) return res.status(response.statusCode).send(response);
     
-    await this.service.sendMail({ email, user, base64: response.base64})
+    await this.service.sendMail({email, user, base64})
     
-    delete response.base64
+    delete response.user.password;
 
     return res.status(201).send(response);
 
@@ -44,6 +46,15 @@ class Controller {
     let response = await this.service.delete(user);
 
     return res.status(response.statusCode).send(response);
+  }
+
+  async getUser(req, res){
+    const { param } = req.params;
+
+    const response = await this.service.getUser(param);
+
+    return res.status(response.statusCode).send(response);
+    
   }
 
 }
