@@ -1,33 +1,26 @@
 import mongoose from "mongoose";
 import config from "./configdb";
+import server from "./server";
 
-class Connection {
-
-  auths = mongoose.connection.collection("auths")
-
-  #connectionUrl = config.connectionUrl
-  #connectOptions = {
+export default {
+  auths: mongoose.connection.collection("auths"),
+  connectionUrl: config.connectionUrl,
+  connectionOptions: {
     useNewUrlParser: true,
-    useFindAndModify: false,
+    useUnifiedTopology: true,
     useCreateIndex: true,
-    useUnifiedTopology: true
-  }
-
-  constructor() {
-    this.#connect()
-  }
-
-  #connect(){
+    useFindAndModify: false,
+  },
+  async connect(port) {
     try {
       mongoose.Promise = global.Promise;
-      mongoose
-      .connect(this.#connectionUrl, this.#connectOptions)
-      .then(console.log("DB Connected"))
+      await mongoose
+        .connect(this.connectionUrl, this.connectionOptions)
+        .then(console.log("DB Connected"));
+      server.listen(port, console.log("Server started at:", port));
     } catch (error) {
-      console.error(error)
+      console.log(error.message);
+      if (error) throw error.message || error;
     }
-  }
-
-}
-
-export default new Connection();
+  },
+};

@@ -1,8 +1,6 @@
-import './config/database'; // Database init
-import 'dotenv/config.js'; // .env
+import database from "./config/database"; // Database init
+import "dotenv/config.js"; // .env
 
-import server from './config/server'
+const port = process.env.PORT || 4444;
 
-const PORT = process.env.PORT || 4444
-
-server.listen(PORT, console.log("Server started at", PORT));
+database.connect(port);

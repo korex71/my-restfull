@@ -1,7 +1,8 @@
 import speakeasy from "speakeasy";
 import qrcode from "qrcode";
-import sendMail from '../services/sendMail'
-import utils from '../helpers/Users'
+import utils from "../../helpers/Users";
+import sendMail from "./sendMail";
+
 class Service {
   constructor(model) {
     this.model = model;
@@ -13,77 +14,74 @@ class Service {
     this.getSecretAndBase64 = this.getSecretAndBase64.bind(this);
   }
 
-  async getSecretAndBase64(user){
-    const secret = speakeasy.generateSecret({user}); // Generate2FA Secret
-    const base64 = await qrcode.toDataURL(secret.otpauth_url) // Generate QR Base64
+  async getSecretAndBase64(user) {
+    const secret = speakeasy.generateSecret({ user }); // Generate2FA Secret
+    const base64 = await qrcode.toDataURL(secret.otpauth_url); // Generate QR Base64
 
     return {
       ascii: secret.ascii,
-      base64
-    }
+      base64,
+    };
   }
 
   async getAll() {
     try {
-      let users = await this.model.find({}, {email: 0});
+      let users = await this.model.find({}, { email: 0 });
 
-      if(!users)
+      if (!users)
         return {
           error: true,
           statusCode: 404,
-          message: "Don't have any users."
-        }
+          message: "Don't have any users.",
+        };
 
       return {
         error: false,
         statusCode: 202,
-        users
+        users,
       };
-      
     } catch (error) {
       return {
         error: true,
         statusCode: 500,
-        error
-      }
+        error,
+      };
     }
   }
 
-  async getUser(param){
+  async getUser(param) {
     try {
-      const {user, exists} = await utils.userExists(param)
-      
-      if(exists)
+      const { user, exists } = await utils.userExists(param);
+
+      if (exists)
         return {
           error: false,
           statusCode: 202,
-          user
-        }
-      
+          user,
+        };
+
       return {
         error: true,
         statusCode: 404,
         user,
-        message: 'User not exists.'
-      }
+        message: "User not exists.",
+      };
     } catch (err) {
-      console.error(err)
+      console.error(err.message || err);
 
       return {
         error: true,
         statusCode: 500,
-        message: error.message
-      }
+        message: err.message || "Unexpected error.",
+      };
     }
   }
 
   async insert(data) {
-
     try {
+      const userExists = await utils.userExists(data.email);
 
-      const userExists = await utils.userExists(data.email)
-       
-      if(userExists)
+      if (userExists)
         return {
           error: true,
           message: "User already exists.",
@@ -91,23 +89,22 @@ class Service {
           user: {
             created: false,
             data: null,
-          }
-        }
-    
+          },
+        };
+
       const user = await this.model.create(data);
 
-      if(user)
+      if (user)
         return {
           error: false,
           statusCode: 201,
           user: {
             created: true,
             data: user,
-          }
-        }
+          },
+        };
     } catch (error) {
-
-      console.error(error.message || error)
+      console.error(error.message || error);
 
       return {
         error: true,
@@ -117,8 +114,8 @@ class Service {
           created: false,
           data: null,
         },
-        errors: error.errors
-      }
+        errors: error.errors,
+      };
     }
   }
 
@@ -128,39 +125,39 @@ class Service {
       return {
         error: false,
         statusCode: 202,
-        item
+        item,
       };
     } catch (error) {
       return {
         error: true,
         statusCode: 500,
-        error
+        error,
       };
     }
   }
 
   async delete(user) {
     try {
-      let item = await this.model.findOneAndRemove({user});
+      let item = await this.model.findOneAndRemove({ user });
 
       if (!item)
         return {
           error: true,
           statusCode: 404,
-          message: "User not found"
+          message: "User not found",
         };
 
       return {
         error: false,
         deleted: true,
         statusCode: 202,
-        item
+        item,
       };
     } catch (error) {
       return {
         error: true,
         statusCode: 500,
-        error
+        error,
       };
     }
   }

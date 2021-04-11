@@ -6,17 +6,16 @@ import response from "../middlewares/response"; // Custom response middleware
 // import appController from '../controllers/appController.js';
 import morgan from "morgan";
 
-import setRoutes from './routes'
+import setRoutes from "./routes";
 
 const server = express();
 
-server.use(morgan('dev'));
-server.use(response)
+server.use(morgan("dev"));
+server.use(response);
 server.use(express.json());
-server.use(express.urlencoded({extended: false}))
+server.use(express.urlencoded({ extended: false }));
 
-setRoutes(server)
-
+setRoutes(server);
 
 // server.use("/auth", authController)
 

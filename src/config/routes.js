@@ -1,19 +1,19 @@
-import UserController from '../controllers/userController';
-import AuthController from '../controllers/signin/userController'
-import Validator from '../validators/Account'
+import AuthController from "../controllers/signup/userController";
+import UserController from "../controllers/signin/userController";
+import Validator from "../validators/Account";
 
 export default (server) => {
   // SignUp Routes
-  server.get(`/auth/users`, UserController.getAll);
-  server.post(`/auth/signup`, Validator.SignUp, UserController.insert)//, UserController.insert);
-  server.delete(`/auth/user/:user`, UserController.delete);
-  server.get('/auth/user/:param', UserController.getUser);
+  server.get(`/auth/users`, AuthController.getAll);
+  server.post(`/auth/signup`, Validator.SignUp, AuthController.insert); //, AuthController.insert);
+  server.delete(`/auth/user/:user`, AuthController.delete);
+  server.get("/auth/user/:param", AuthController.getUser);
 
   // SignIn Routes
 
-  server.post('/auth/signin', AuthController.authenticate)
-  
+  server.post("/auth/signin", UserController.authenticate);
+  // server.put(`/auth/:user`, AuthController.update);
 
-
-  // server.put(`/auth/:user`, UserController.update);
-}
+  // Forgot Routes
+  // server.get("/forgot_password/:token", UserController.forgot);
+};

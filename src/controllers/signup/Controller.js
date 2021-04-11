@@ -1,6 +1,5 @@
-import utils from '../helpers/Users'
+import utils from "../../helpers/Users";
 class Controller {
-
   constructor(service) {
     this.service = service;
     this.getAll = this.getAll.bind(this);
@@ -11,25 +10,29 @@ class Controller {
   }
 
   async getAll(req, res) {
-    return res.status(200).send(await this.service.getAll());
+    const response = await this.service.getAll();
+    return res.status(response.statusCode).send(response);
   }
 
   async insert(req, res) {
+    const { email, user, password } = req.body;
 
-    const {email, user, password} = req.body;
+    const { ascii, base64 } = await utils.getSecretAndBase64(user);
 
-    const {ascii, base64} = await utils.getSecretAndBase64(user)
-
-    const response = await this.service.insert({email, user, password, twoFactors: ascii});
+    const response = await this.service.insert({
+      email,
+      user,
+      password,
+      twoFactors: ascii,
+    });
 
     if (response.error) return res.status(response.statusCode).send(response);
-    
-    await this.service.sendMail({email, user, base64})
-    
+
+    await this.service.sendMail({ email, user, base64 });
+
     delete response.user.password;
 
-    return res.status(201).send(response);
-
+    return res.status(response.statusCode).send(response);
   }
 
   async update(req, res) {
@@ -48,15 +51,13 @@ class Controller {
     return res.status(response.statusCode).send(response);
   }
 
-  async getUser(req, res){
+  async getUser(req, res) {
     const { param } = req.params;
 
     const response = await this.service.getUser(param);
 
     return res.status(response.statusCode).send(response);
-    
   }
-
 }
 
 export default Controller;
