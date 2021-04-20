@@ -14,10 +14,9 @@ export default {
   async connect(port) {
     try {
       mongoose.Promise = global.Promise;
-      await mongoose
-        .connect(this.connectionUrl, this.connectionOptions)
-        .then(console.log("DB Connected"));
-      server.listen(port, console.log("Server started at:", port));
+      await mongoose.connect(this.connectionUrl, this.connectionOptions);
+      console.log("✅ DB Connected");
+      server.listen(port, console.log("✨ Server started at:", port));
     } catch (error) {
       console.log(error.message);
       if (error) throw error.message || error;

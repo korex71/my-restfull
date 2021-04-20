@@ -81,7 +81,7 @@ class Service {
     try {
       const userExists = await utils.userExists(data.email);
 
-      if (userExists)
+      if (userExists.exists)
         return {
           error: true,
           message: "User already exists.",
@@ -91,6 +91,7 @@ class Service {
             data: null,
           },
         };
+      console.log(data);
 
       const user = await this.model.create(data);
 
@@ -108,7 +109,7 @@ class Service {
 
       return {
         error: true,
-        message: error.message || "Unexpected error.",
+        message: "Internal error",
         statusCode: 500,
         user: {
           created: false,

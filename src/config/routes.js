@@ -5,9 +5,11 @@ import Validator from "../validators/Account";
 export default (server) => {
   // SignUp Routes
   server.get(`/auth/users`, AuthController.getAll);
-  server.post(`/auth/signup`, Validator.SignUp, AuthController.insert); //, AuthController.insert);
-  server.delete(`/auth/user/:user`, AuthController.delete);
   server.get("/auth/user/:param", AuthController.getUser);
+
+  server.post(`/auth/signup`, Validator.SignUp, AuthController.insert); //, AuthController.insert);
+
+  server.delete(`/auth/user/:user`, AuthController.delete);
 
   // SignIn Routes
 
