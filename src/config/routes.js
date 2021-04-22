@@ -1,5 +1,7 @@
 import AuthController from "../controllers/signup/userController";
 import UserController from "../controllers/signin/userController";
+import AuthMiddleware from "../middlewares/auth";
+import AppController from "../controllers/appController";
 import Validator from "../validators/Account";
 
 export default (server) => {
@@ -11,11 +13,17 @@ export default (server) => {
 
   server.delete(`/auth/user/:user`, AuthController.delete);
 
-  // SignIn Routes
+  server.post("/forgot_password", UserController.forgot);
+
+  server.post(
+    "/forgot_password/:token",
+    Validator.forgot,
+    UserController.forgotSuccess
+  );
+
+  // SignIn || Authenticated Routes
 
   server.post("/auth/signin", UserController.authenticate);
-  // server.put(`/auth/:user`, AuthController.update);
 
-  // Forgot Routes
-  // server.get("/forgot_password/:token", UserController.forgot);
+  server.post(`/user`, AuthMiddleware, AppController.user);
 };

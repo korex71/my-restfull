@@ -1,12 +1,13 @@
-import express from "express";
-import authMiddleware from "../middlewares/auth";
-
-const route = express.Router();
-
-route.use(authMiddleware);
-
-route.get("/user", (req, res) => {
+const user = (req, res) => {
   res.json({ user: req.userId });
-});
+};
 
-export default route;
+const update = (req, res) => {
+  res.json({ user: req.userId });
+};
+
+const forgot = (req, res) => {
+  res.json({ user: req.userId });
+};
+
+export default { user, update, forgot };

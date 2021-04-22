@@ -11,8 +11,7 @@
   },
   "scripts": {
     "start": "babel-node src/",
-    "dev:start": "NODE_ENV=development nodemon --exec babel-node src/",
-    "dev:production": "NODE_ENV=production nodemon --exec babel-node src/"
+    "dev:start": "nodemon --exec babel-node src/"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
