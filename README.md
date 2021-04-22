@@ -3,27 +3,32 @@
 </h1>
 
 ## Focus
+
 So the objective of this REPOSITORY is to share my current API architecture and the way I found to create a better structure, applying design patterns and clean code.
 
 ## Routes
 
 1. Normal
-* GET ['/auth/users']
-* POST ['/auth/signup']
-* GET ['/auth/forgot_password?token=generatedToken&user=username']
+
+- POST ['/auth/signup']
+- POST ['/auth/forgot_password/TOKEN'] -> Redirected by frontend with body {newPassword} + token param.
+- POST ['/auth/signin'] -> Get token with credentials.
+- POST ['/user'] -> With Bearer token prefix "authorization".
 
 2. Test
-* DELETE ['/auth/user/username']
 
+- DELETE ['/auth/user/username']
+- GET ['/auth/users']
+- GET ['/auth/user/x'] -> X = Username || Email
 
 ### Features
 
-- [X] User registration
-- [X] JWT authentication
-- [X] Rota com middleware verificando JWT
-- [X] 2 Factors authentication (Google auth)
-- [X] Send email after registration
-- [ ] Password recovery route by email
+- [x] User registration
+- [x] JWT authentication
+- [x] Rota com middleware verificando JWT
+- [x] 2 Factors authentication (Google auth)
+- [x] Send email after registration
+- [x] Password recovery route by email
 - [ ] 2FA password recovery
 - [ ] Good security practices with Helmet, TLS
 - [ ] Limit IP login failures to a short time / Prevent brute force
@@ -46,9 +51,8 @@ $ npm install
 # Execute a aplicação em modo de desenvolvimento
 $ npm run dev:start
 
-# O servidor inciará na porta:4444 por padrão 
+# O servidor inciará na porta:4444 por padrão
 ```
-
 
 <h4 align="center"> 
 	🚧 Em construção... 🚧
