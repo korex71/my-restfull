@@ -139,7 +139,7 @@ class Service {
 
   async delete(user) {
     try {
-      let item = await this.model.findOneAndRemove({ user });
+      const item = await this.model.findOneAndRemove({ user });
 
       if (!item)
         return {
