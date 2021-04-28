@@ -1,2 +1,3 @@
 import "./config/database"; // Database init
-import "dotenv/config.js"; // .env
+import "./config/server"; // Server init
+import "dotenv/config"; // .env

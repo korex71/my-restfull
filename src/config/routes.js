@@ -4,18 +4,18 @@ import AuthMiddleware from "../middlewares/auth";
 import AppController from "../controllers/appController";
 import Validator from "../validators/Account";
 
-export default (server) => {
+export default (Server) => {
   // SignUp Routes
-  server.get(`/auth/users`, AuthController.getAll);
-  server.get("/auth/user/:param", AuthController.getUser);
+  Server.get(`/auth/users`, AuthController.getAll);
+  Server.get("/auth/user/:param", AuthController.getUser);
 
-  server.post(`/auth/signup`, Validator.SignUp, AuthController.insert); //, AuthController.insert);
+  Server.post(`/auth/signup`, Validator.SignUp, AuthController.insert); //, AuthController.insert);
 
-  server.delete(`/auth/user/:user`, AuthController.delete);
+  Server.delete(`/auth/user/:user`, AuthController.delete);
 
-  server.post("/forgot_password", UserController.forgot);
+  Server.post("/forgot_password", UserController.forgot);
 
-  server.post(
+  Server.post(
     "/forgot_password/:token",
     Validator.forgot,
     UserController.forgotSuccess
@@ -23,7 +23,7 @@ export default (server) => {
 
   // SignIn || Authenticated Routes
 
-  server.post("/auth/signin", UserController.authenticate);
+  Server.post("/auth/signin", UserController.authenticate);
 
-  server.post(`/user`, AuthMiddleware, AppController.user);
+  Server.post(`/user`, AuthMiddleware, AppController.user);
 };
