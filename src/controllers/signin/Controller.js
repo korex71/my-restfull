@@ -1,6 +1,9 @@
 class Controller {
   constructor(service) {
     this.service = service;
+    this.authenticate = this.authenticate.bind(this);
+    this.forgot = this.forgot.bind(this);
+    this.forgotSuccess = this.forgotSuccess.bind(this);
   }
 
   #dispatch(res, response) {
