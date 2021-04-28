@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
+import { Schema, model } from "mongoose";
 import bcrypt from "bcryptjs";
 
-const authSchema = new mongoose.Schema({
+const authSchema = new Schema({
   user: { type: String, required: true },
   email: { type: String, required: true, lowercase: true, unique: true },
   twoFactors: { type: String, required: true },
@@ -18,4 +18,4 @@ authSchema.pre("save", async function (next) {
   next();
 });
 
-export default mongoose.model("Auth", authSchema);
+export default model("Auth", authSchema);

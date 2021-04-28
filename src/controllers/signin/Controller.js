@@ -1,15 +1,20 @@
 class Controller {
   constructor(service) {
     this.service = service;
-    this.authenticate = this.authenticate.bind(this);
+  }
+
+  #dispatch(res, response) {
+    const { message, data, error, statusCode } = response;
+
+    if (error) res.status(statusCode).send({ error: message });
+
+    res.status(statusCode).send({ message, data });
   }
 
   async authenticate(req, res) {
     const response = await this.service.authenticate(req.body);
 
-    const { message, data, error, statusCode } = response;
-
-    res.status(statusCode).send({ message, data });
+    this.#dispatch(res, response);
   }
 
   async forgot(req, res) {
@@ -17,24 +22,18 @@ class Controller {
 
     const response = await this.service.forgotPassword(email);
 
-    const { message, data, error, statusCode } = response;
-
-    res.status(statusCode).send({ message, data });
+    this.#dispatch(res, response);
   }
 
   async forgotSuccess(req, res) {
     const { email, newPassword } = req.body;
 
     if (!email || !newPassword)
-      return {
-        error: "Email or password is blank",
-      };
+      res.status(400).send({ error: "Email or password is blank" });
 
     const response = await this.service.forgotSuccess({ email, newPassword });
 
-    const { message, data, error, statusCode } = response;
-
-    res.status(statusCode).send({ message, data });
+    this.#dispatch(res, response);
   }
 }
 
