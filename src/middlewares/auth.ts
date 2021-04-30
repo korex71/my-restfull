@@ -2,11 +2,9 @@ import jwt from "jsonwebtoken";
 
 export default (req, res, next) => {
   const authHeader = req.headers.authorization;
-  
+
   if (!authHeader)
     return res.status(401).send({ error: "Token não informado." });
-  if (!authHeader.split(" ").length === 2)
-    return res.status(401).send({ error: "Token error" });
 
   const token = authHeader.slice(7, authHeader.length);
 

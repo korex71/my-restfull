@@ -1,4 +1,4 @@
-import {getMessage} from './messages.js'
+import { getMessage } from "./messages";
 
 export const getValidatorError = (error, messagePath) => {
   if (!error) return null;
@@ -11,11 +11,11 @@ export const getValidatorError = (error, messagePath) => {
     const path = `${messagePath}.${key}.${type}`;
 
     const customMessage = getMessage(path);
-    
+
     if (!customMessage) {
       console.log("CustomMessage not found for path:", path);
     }
-    
+
     errorMessages[key] = getMessage(path) || message;
   });
   return errorMessages;

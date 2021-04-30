@@ -1,25 +1,25 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import sendMail from "./sendMail";
 import utils from "../../helpers/Users";
+import { sendForgot } from "../../mail/send";
+import User from "../../models/User";
 
 class Service {
-  constructor(model) {
-    this.model = model;
+  private model = User;
+  private sendMail = sendForgot;
+
+  constructor() {
     this.authenticate = this.authenticate.bind(this);
-    this.sendMail = sendMail;
   }
 
-  #generateToken(id) {
+  private generateToken(id: string) {
     return jwt.sign({ id }, process.env.SESS_SECRET, {
       expiresIn: "1d", // 24h
     });
   }
 
-  async authenticate(data) {
-    const { email, password } = data;
-
-    const user = await this.model.findOne({ email }).select("+password");
+  async authenticate(email: string, password: string) {
+    const user = await this.model.findOne({ email });
 
     if (!user)
       return {
@@ -39,21 +39,19 @@ class Service {
         data: {},
       };
 
-    delete user.password;
-
     return {
       error: false,
       statusCode: 202,
       message: "Authenticated",
       data: {
         user,
-        token: this.#generateToken(user.id),
+        token: this.generateToken(user.id),
       },
     };
   }
 
-  async forgotPassword(email) {
-    const user = await this.model.findOne({ email }).select("+password");
+  async forgotPassword(email: string) {
+    const user = await this.model.findOne({ email });
 
     if (!user)
       return {
@@ -63,13 +61,13 @@ class Service {
         data: {},
       };
 
-    if (new Date().getTime() > user.passwordResetExpires)
+    if (new Date().getTime() > Number(user.passwordResetExpires))
       return {
         error: true,
         statusCode: 423,
         message:
           "Already exists a forgot password process, please verify your email",
-        data: { email },
+        data: {},
       };
 
     const expireTime = new Date(new Date().getTime() + 1000 * (60 * 30)); // 30 min later
@@ -82,7 +80,7 @@ class Service {
       { email },
       {
         passwordResetToken: token,
-        passwordResetExpires: expireTime,
+        passwordResetExpires: String(expireTime),
       }
     );
 
@@ -96,11 +94,8 @@ class Service {
     };
   }
 
-  async forgotSuccess(props) {
-    const { email, newPassword } = props;
-
+  async forgotSuccess(email: string, newPassword: string) {
     const verify = await utils.userExists(email);
-
     if (!verify.exists)
       return {
         error: true,
@@ -111,6 +106,14 @@ class Service {
 
     try {
       await this.model.findOneAndUpdate({ email }, { password: newPassword });
+      return {
+        error: false,
+        statusCode: 201,
+        message: "Password changed successfully.",
+        data: {
+          email,
+        },
+      };
     } catch (err) {
       return {
         error: true,
@@ -119,17 +122,7 @@ class Service {
         data: {},
       };
     }
-
-    return {
-      error: false,
-      statusCode: 201,
-      message: "Password changed successfully.",
-      data: {
-        email,
-        user,
-      },
-    };
   }
 }
 
-export default Service;
+export default new Service();

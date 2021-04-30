@@ -1,5 +1,5 @@
-import AuthController from "../controllers/signup/userController";
-import UserController from "../controllers/signin/userController";
+import AuthController from "../controllers/signup/Controller";
+import UserController from "../controllers/signin/Controller";
 import AuthMiddleware from "../middlewares/auth";
 import AppController from "../controllers/appController";
 import Validator from "../validators/Account";

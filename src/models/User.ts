@@ -1,7 +1,17 @@
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
 
-const authSchema = new Schema({
+export interface IUser extends Document {
+  user: string;
+  email: string;
+  twoFactors: string;
+  password: string;
+  passwordResetToken?: string;
+  passwordResetExpires?: string;
+  createdAt: Date;
+}
+
+const UserSchema = new Schema({
   user: { type: String, required: true },
   email: { type: String, required: true, lowercase: true, unique: true },
   twoFactors: { type: String, required: true },
@@ -11,11 +21,11 @@ const authSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-authSchema.pre("save", async function (next) {
+UserSchema.pre<IUser>("save", async function (next) {
   const hash = await bcrypt.hash(this.password, 10);
   this.password = hash;
 
   next();
 });
 
-export default model("Auth", authSchema);
+export default mongoose.model<IUser>("Auth", UserSchema);

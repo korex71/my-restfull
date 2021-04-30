@@ -1,20 +1,22 @@
 import speakeasy from "speakeasy";
 import qrcode from "qrcode";
 import utils from "../../helpers/Users";
-import sendMail from "./sendMail";
+import User from "../../models/User";
+import { sendEmailQR } from "../../mail/send";
+import { IInsertUser } from "../../interfaces/ISignupService";
 
 class Service {
-  constructor(model) {
-    this.model = model;
+  model = User;
+  sendMail = sendEmailQR;
+  constructor() {
     this.getAll = this.getAll.bind(this);
     this.insert = this.insert.bind(this);
     this.update = this.update.bind(this);
     this.delete = this.delete.bind(this);
-    this.sendMail = sendMail.bind(this);
     this.getSecretAndBase64 = this.getSecretAndBase64.bind(this);
   }
 
-  async getSecretAndBase64(user) {
+  async getSecretAndBase64(user: string) {
     const secret = speakeasy.generateSecret({ user }); // Generate2FA Secret
     const base64 = await qrcode.toDataURL(secret.otpauth_url); // Generate QR Base64
 
@@ -26,46 +28,34 @@ class Service {
 
   async getAll() {
     try {
-      let users = await this.model.find({}, { email: 0 });
-
-      if (!users)
-        return {
-          error: true,
-          statusCode: 404,
-          message: "Don't have any users.",
-        };
+      const users = await this.model.find({});
 
       return {
-        error: false,
-        statusCode: 202,
+        erorr: false,
+        statusCode: 200,
+        message: "",
         users,
       };
     } catch (error) {
       return {
         error: true,
         statusCode: 500,
-        error,
+        message: "Unexpected error",
+        users: undefined,
       };
     }
   }
 
-  async getUser(param) {
+  async getUser(param: string) {
     try {
       const { user, exists } = await utils.userExists(param);
 
       if (exists)
         return {
           error: false,
-          statusCode: 202,
+          statusCode: exists ? 200 : 404,
           user,
         };
-
-      return {
-        error: true,
-        statusCode: 404,
-        user,
-        message: "User not exists.",
-      };
     } catch (err) {
       console.error(err.message || err);
 
@@ -77,7 +67,7 @@ class Service {
     }
   }
 
-  async insert(data) {
+  async insert(data: IInsertUser) {
     try {
       const userExists = await utils.userExists(data.email);
 
@@ -91,7 +81,6 @@ class Service {
             data: null,
           },
         };
-      console.log(data);
 
       const user = await this.model.create(data);
 
@@ -115,12 +104,11 @@ class Service {
           created: false,
           data: null,
         },
-        errors: error.errors,
       };
     }
   }
 
-  async update(id, data) {
+  async update(id: string, data: []) {
     try {
       let item = await this.model.findByIdAndUpdate(id, data, { new: true });
       return {
@@ -132,12 +120,11 @@ class Service {
       return {
         error: true,
         statusCode: 500,
-        error,
       };
     }
   }
 
-  async delete(user) {
+  async delete(user: string) {
     try {
       const item = await this.model.findOneAndRemove({ user });
 
@@ -158,10 +145,9 @@ class Service {
       return {
         error: true,
         statusCode: 500,
-        error,
       };
     }
   }
 }
 
-export default Service;
+export default new Service();

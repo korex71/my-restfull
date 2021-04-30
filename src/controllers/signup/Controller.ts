@@ -1,7 +1,11 @@
+import express from "express";
 import utils from "../../helpers/Users";
+import Service from "../../services/signup/Service";
+
 class Controller {
-  constructor(service) {
-    this.service = service;
+  service = Service;
+
+  constructor() {
     this.getAll = this.getAll.bind(this);
     this.insert = this.insert.bind(this);
     this.update = this.update.bind(this);
@@ -9,12 +13,13 @@ class Controller {
     this.getUser = this.getUser.bind(this);
   }
 
-  async getAll(req, res) {
+  async getAll(req: express.Request, res: express.Response) {
     const response = await this.service.getAll();
+
     return res.status(response.statusCode).send(response);
   }
 
-  async insert(req, res) {
+  async insert(req: express.Request, res: express.Response) {
     const { email, user, password } = req.body;
 
     const { ascii, base64 } = await utils.getSecretAndBase64(user);
@@ -30,12 +35,10 @@ class Controller {
 
     await this.service.sendMail({ email, user, base64 });
 
-    delete response.user.password;
-
     return res.status(response.statusCode).send(response);
   }
 
-  async update(req, res) {
+  async update(req: express.Request, res: express.Response) {
     const { id } = req.params;
 
     let response = await this.service.update(id, req.body);
@@ -43,7 +46,7 @@ class Controller {
     return res.status(response.statusCode).send(response);
   }
 
-  async delete(req, res) {
+  async delete(req: express.Request, res: express.Response) {
     const { user } = req.params;
 
     let response = await this.service.delete(user);
@@ -51,7 +54,7 @@ class Controller {
     return res.status(response.statusCode).send(response);
   }
 
-  async getUser(req, res) {
+  async getUser(req: express.Request, res: express.Response) {
     const { param } = req.params;
 
     const response = await this.service.getUser(param);
@@ -60,4 +63,4 @@ class Controller {
   }
 }
 
-export default Controller;
+export default new Controller();

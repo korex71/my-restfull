@@ -4,20 +4,13 @@ class Database {
   constructor() {
     mongoose.Promise = Promise;
 
-    mongoose.connection.on(
-      "connected",
-      () => {
-        console.log("🚀 Database connected.");
-      },
-      "reconnected",
-      () => {
-        console.log("✅ Database connection reestablished.");
-      },
-      "error",
-      (error) => {
-        console.error(error);
-      }
+    mongoose.connection.on("connected", () =>
+      console.log("🚀 Database connected.")
     );
+    mongoose.connection.on("reconnected", () =>
+      console.log("✅ Database connection reestablished.")
+    );
+    mongoose.connection.on("error", (error) => console.error(error));
 
     try {
       mongoose.connect(config.connectionUrl, config.connectionOptions);

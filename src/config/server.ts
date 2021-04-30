@@ -16,7 +16,7 @@ server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 setRoutes(server);
 
-server.listen(port, console.log("🔥 Server started at:", port));
+server.listen(port, () => console.log("🔥 Server started at:", port));
 
 // server.use("/auth", authController)
 

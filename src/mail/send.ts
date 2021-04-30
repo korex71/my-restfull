@@ -1,6 +1,8 @@
+import "dotenv/config.js";
 import moment from "moment";
 import nodemailer from "nodemailer";
-import "dotenv/config.js";
+import inlineBase64 from "nodemailer-plugin-inline-base64";
+import { ISendMailProps } from "../interfaces/ISigninService";
 
 const env = process.env.NODE_ENV || "development";
 
@@ -26,7 +28,7 @@ const host = process.env.HOST; // Frontend web host
 
 const transporter = nodemailer.createTransport(service[env]);
 
-export default async (data) => {
+export const sendForgot = async (data: ISendMailProps) => {
   moment.locale("pt-br");
 
   const mailHtml = `
@@ -46,6 +48,35 @@ export default async (data) => {
     subject: "Recuperação de senha",
     html: mailHtml,
   };
+
+  return await transporter.sendMail(mailOptions); // send
+};
+
+export const sendEmailQR = async (data: ISendMailProps) => {
+  moment.locale("pt-br");
+
+  // const base64Image = data.base64.split(";base64,").pop(); //Extract only B64 code
+
+  const mailHtml = `
+  <html>
+    <h1>Utilize com Google Authenticator.</h1>
+      <br>
+    <h2>Olá ${data.user}</h2>
+      <br>
+    <img src="${data.base64}">
+      <br>
+    Enviado as ${moment().format("DD/MM/YYYY HH:mm")}
+  </html>
+  `;
+
+  const mailOptions = {
+    from: "Kore <Kore@korex.com>",
+    to: `${data.user} <${data.email}>`,
+    subject: "Use este QRCODE em Google Authenticator",
+    html: mailHtml,
+  };
+
+  transporter.use("compile", inlineBase64({ cidPrefix: "qrcode" }));
 
   return await transporter.sendMail(mailOptions); // send
 };
